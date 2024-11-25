@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:random_number_app/dependency_injection.dart';
+
 import 'package:random_number_app/view_model/homepage_view_model.dart';
+import 'package:random_number_app/views/widgets/homepage_actions.dart';
+import 'package:random_number_app/views/widgets/list_item_widget.dart';
+import 'package:random_number_app/views/widgets/number_input_widget.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -14,9 +17,6 @@ class _HomepageState extends State<Homepage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      injector<HomepageViewModel>().generateNumbers(10);
-    });
   }
 
   @override
@@ -24,57 +24,47 @@ class _HomepageState extends State<Homepage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Random Numbers'),
-        
       ),
       body: Consumer<HomepageViewModel>(builder: (context, viewModel, child) {
         if (viewModel.numbers.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+          return NumberInputWidget(
+            onInputComplete: viewModel.generateNumbers,
+          );
         }
         if (viewModel.isOrdered) {
-         WidgetsBinding.instance.addPostFrameCallback((_) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Parabéns! Você ordenou a lista!'),
-            ));
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text("Validação"),
+                  content: Text(
+                      "Parabéns, você ordenou a lista em ${viewModel.moveCount} movimentos"),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('OK')),
+                  ],
+                ),
+              );
+            }
           });
         }
         return ReorderableListView.builder(
-            header: Card(
-            margin: const EdgeInsets.all(8.0),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-              'Movimentos: ${viewModel.moveCount}',
-              style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ),
-            ),
             itemCount: viewModel.numbers.length,
             onReorder: viewModel.reorderNumbers,
             itemBuilder: (context, index) {
               final value = viewModel.numbers[index];
               final isPositionCorrect = value == index + 1;
-              return ListTile(
-                leading: const Icon(Icons.drag_handle),
-                style: ListTileStyle.list,
-                key: ValueKey(value),
-                trailing: DecoratedBox(
-                    decoration: BoxDecoration(
-                        color: isPositionCorrect ? Colors.green : Colors.red,
-                        shape: BoxShape.circle),
-                    child: Icon(
-                      isPositionCorrect ? Icons.check : Icons.close,
-                      color: Colors.white,
-                    )),
-                title: Text(value.toString()),
-              );
+              return ListItemWidget(
+                  key: ValueKey(index),
+                  value: value,
+                  isPositionCorrect: isPositionCorrect);
             });
       }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          injector<HomepageViewModel>().generateNumbers(10);
-        },
-        child: const Icon(Icons.refresh),
-      ),
+      bottomNavigationBar: const HomepageActions(),
     );
   }
 }

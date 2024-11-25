@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -19,7 +18,7 @@ void _stepInjectionForTesting() {
 void _setupMockRandomNumberApi() {
   final mockRandomNumberApi = injector<RandomNumberApi>();
   when(() => mockRandomNumberApi.getRandomNumbers(any()))
-      .thenReturn([10, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+      .thenReturn([2, 1, 3, 4, 5, 6, 7, 8, 9, 10]);
   when(() => mockRandomNumberApi.checkOrder(any())).thenReturn(false);
 }
 
@@ -29,18 +28,37 @@ void main() {
     _setupMockRandomNumberApi();
   });
 
-  testWidgets('Ensure user views number list on home page', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  tearDown((){
+    injector.reset();
+  });
+
+  testWidgets(
+      'Ensure user can input a number, view a list of random numbers',
+      (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
     await tester.pump();
 
-    // Verify that all numbers are present in the list.
-    for (var element in List.generate(10, (index) => index + 1)) {
-      final finder = find.text('$element');
-       await tester.scrollUntilVisible(finder, 50);
-      expect(finder, findsOneWidget);
-     
-    }
+    await tester.enterText(find.byType(TextField), '10');
+    await tester.pump();
+    await tester.tap(find.byType(ElevatedButton));
+
+    await tester.pumpAndSettle();
     expect(find.byType(ListTile), findsWidgets);
+  });
+  testWidgets(
+      'Ensure user can input a number, view a list of random numbers and validate order using the UI',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+    await tester.pump();
+
+    await tester.enterText(find.byType(TextField), '10');
+    await tester.pump();
+    await tester.tap(find.byType(ElevatedButton));
+
+    await tester.pumpAndSettle();
+    expect(find.byType(ListTile), findsWidgets);
+    await tester.tap(find.text('Validar'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsOneWidget);
   });
 }

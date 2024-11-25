@@ -33,4 +33,15 @@ class HomepageViewModel extends ChangeNotifier {
     _isOrdered = _randomNumberApi.checkOrder(_numbers);
     notifyListeners();
   }
+
+  bool checkOrder() {
+    return _randomNumberApi.checkOrder(numbers);
+  }
+
+  void clear() {
+    _moveCount = 0;
+    _numbers.clear();
+    _isOrdered = false;
+    notifyListeners();
+  }
 }
