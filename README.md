@@ -2,15 +2,36 @@
 
 A new Flutter project.
 
-## Getting Started
+## Running the Project
 
-This project is a starting point for a Flutter application.
+To run the project, follow these steps:
 
-A few resources to get you started if this is your first Flutter project:
+1. Ensure you have Flutter installed. If not, follow the instructions [here](https://docs.flutter.dev/get-started/install). 
+2. Open a terminal and navigate to the project directory:
+    ```sh
+    cd /path/to/random_number_app
+    ```
+3. Get the dependencies:
+    ```sh
+    flutter pub get
+    ```
+4. Run the app:
+    ```sh
+    flutter run
+    ```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Running Tests
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Widget Tests
+
+To run the widget tests, use the following command:
+```sh
+flutter test
+```
+
+### Integration Tests
+
+To run the integration tests,make sure a device is connected and available for debugging sessions and then use the following command:
+```sh
+flutter test integration_test
+```
